@@ -73,21 +73,31 @@ where\ &typestack\ = \ findAncestors(C_{base}).push(C_{base})
 \\
 \longrightarrow\ &\langle\ \langle \ e_{id},\ val(ie),\ lEnv,\ running \ \rangle,\ gEnv,\ auxEnv\ \rangle
 \\
-(eval-5)\ & \langle\ \langle \ e_{id},\ (T)e,\ lEnv,\ running\ \rangle,\ gEnv,\ auxEnv\ \rangle
+(eval-5-1)\ & \langle\ \langle \ e_{id},\ (T)e,\ lEnv,\ running\ \rangle,\ gEnv,\ auxEnv\ \rangle
 \\
-\stackrel{1}{\longrightarrow} &\langle\ \langle \ e_{id},\ failure,\ lEnv,\ terminated \ \rangle,\ gEnv,\ auxEnv\ \rangle
+\longrightarrow &\langle\ \langle \ e_{id},\ failure,\ lEnv,\ terminated \ \rangle,\ gEnv,\ auxEnv\ \rangle
 \\
-\stackrel{2}{\longrightarrow} &\langle\ \langle \ e_{id},\ lEnv[env][e][value],\ 
+&if\ subtype(T,\ typeof(e))\ ==\ false 
+\\
+(eval-5-2)\ & \langle\ \langle \ e_{id},\ (T)e,\ lEnv,\ running\ \rangle,\ gEnv,\ auxEnv\ \rangle
+\\
+\longrightarrow &\langle\ \langle \ e_{id},\ lEnv[env][e][value],\ 
 \\
 & lEnv[env]\ \oplus\ \{ e[type] \rightarrow T\} ,\ running \ \rangle,\ gEnv,\ auxEnv\ \rangle
 \\
 &if\ subtype(T,\ typeof(e))\ ==\ true 
 \\
-(eval-6)\ & \langle\ \langle \ e_{id},\ e.a,\ lEnv,\ running\ \rangle,\ gEnv,\ auxEnv\ \rangle
+(eval-6-1)\ & \langle\ \langle \ e_{id},\ e.a,\ lEnv,\ running\ \rangle,\ gEnv,\ auxEnv\ \rangle
 \\
-\stackrel{1}{\longrightarrow} &\langle\ \langle \ e_{id},\ loc.val(a),\ lEnv,\ running \ \rangle,\ gEnv,\ auxEnv\ \rangle
+\longrightarrow &\langle\ \langle \ e_{id},\ loc.val(a),\ lEnv,\ running \ \rangle,\ gEnv,\ auxEnv\ \rangle
 \\
-\stackrel{2}{\longrightarrow} &\langle\ \langle \ e_{id},\ loc.location(a),\ lEnv,\ running \ \rangle,\ gEnv,\ auxEnv\ \rangle
+&if\ typeof(a)\ ==\ int\ or\ typeof(a)\ ==\ bool
+\\
+(eval-6-2)\ & \langle\ \langle \ e_{id},\ e.a,\ lEnv,\ running\ \rangle,\ gEnv,\ auxEnv\ \rangle
+\\
+\longrightarrow &\langle\ \langle \ e_{id},\ loc.location(a),\ lEnv,\ running \ \rangle,\ gEnv,\ auxEnv\ \rangle
+\\
+&if\ typeof(a)\ !=\ int\ and\ typeof(a)\ !=\ bool
 &
 \end{flalign*}
 \end{small}
@@ -99,23 +109,33 @@ where\ &typestack\ = \ findAncestors(C_{base}).push(C_{base})
 \\
 \longrightarrow\ &\langle\ \langle \ e_{id},\ \epsilon,\ lEnv[env]\ \oplus\ \{ \ le[value] \rightarrow e\},\ running \ \rangle,\ gEnv,\ auxEnv \ \rangle
 \\
-(assn-2)\ & \langle\ \langle \ e_{id},\ le=loc;,\ lEnv,\ running\ \rangle,\ gEnv,\ auxEnv \ \rangle
+(assn-2-1)\ & \langle\ \langle \ e_{id},\ le=loc;,\ lEnv,\ running\ \rangle,\ gEnv,\ auxEnv \ \rangle
 \\
-\stackrel{1}{\longrightarrow} &\langle\ \langle \ e_{id},\ failure,\ st_{func},\ st_{obj},\ env,\ terminated \ \rangle,\ gEnv,\ auxEnv \ \rangle
+\longrightarrow &\langle\ \langle \ e_{id},\ failure,\ st_{func},\ st_{obj},\ env,\ terminated \ \rangle,\ gEnv,\ auxEnv \ \rangle
 \\
-\stackrel{2}{\longrightarrow} &\langle\ \langle \ e_{id},\ \epsilon,\ lEnv[env]\ \oplus\ \{ \ le[value] \rightarrow loc\},\ running \ \rangle,\ gEnv,\ auxEnv\ \rangle 
+& if \ subtype(typeof(le),\ typeof(loc))\ !=\ true 
+\\
+(assn-2-2)\ & \langle\ \langle \ e_{id},\ le=loc;,\ lEnv,\ running\ \rangle,\ gEnv,\ auxEnv \ \rangle
+\\
+\longrightarrow &\langle\ \langle \ e_{id},\ \epsilon,\ lEnv[env]\ \oplus\ \{ \ le[value] \rightarrow loc\},\ running \ \rangle,\ gEnv,\ auxEnv\ \rangle 
 \\
 & if \ subtype(typeof(le),\ typeof(loc))\ ==\ true 
 \\
-(assn-3)\ & \langle\ \langle \ e_{id},\ o.a=e;,\ lEnv,\ running\ \rangle,\ gEnv,\ auxEnv\ \rangle
+(assn-3-1)\ & \langle\ \langle \ e_{id},\ o.a=e;,\ lEnv,\ running\ \rangle,\ gEnv,\ auxEnv\ \rangle
 \\
-\stackrel{1}{\longrightarrow} &\langle\ \langle \ e_{id},\ \epsilon,\ lEnv,\ running \ \rangle,
+\longrightarrow &\langle\ \langle \ e_{id},\ \epsilon,\ lEnv,\ running \ \rangle,
 \\
 &gEnv\ \oplus \{Objects[o][type][a][value] \rightarrow val(e)\},\ auxEnv \ \rangle 
 \\
-\stackrel{2}{\longrightarrow} &\langle\ \langle \ e_{id},\ \epsilon ,\ lEnv,\ running \ \rangle,
+&if\ typeof(a)\ ==\ int\ or\ typeof(a)\ ==\ bool
+\\
+(assn-3-2)\ & \langle\ \langle \ e_{id},\ o.a=e;,\ lEnv,\ running\ \rangle,\ gEnv,\ auxEnv\ \rangle
+\\
+\longrightarrow &\langle\ \langle \ e_{id},\ \epsilon ,\ lEnv,\ running \ \rangle,
 \\
 &gEnv\ \oplus \{Objects[o][type][a][value] \rightarrow location(e)\},\ auxEnv\ \rangle
+\\
+&if\ typeof(a)\ !=\ int\ and\ typeof(a)\ !=\ bool
 \end{flalign*}
 \end{small}
 
