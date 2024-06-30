@@ -4,18 +4,17 @@
 \usepackage{amssymb}
 \usepackage{booktabs}
 
+
 \title{Operational Semantics for rCOE}
 \begin{document}
-
 \maketitle
-
 \section{Declarations}
 \begin{small}
 \begin{flalign*}
 (decl-1)\ & \langle\ \langle\ e_0,\ class\ C_{derived}\ extends\ C_{base}\  \{\dots\},\ lEnv,\ running \rangle,\ gEnv,\ auxEnv \rangle 
 \\
 \longrightarrow\ & \langle\ \langle\ e_0,\ \{\dots\},\ lEnv,\ running\ \rangle ,\ \\
-& gEnv \oplus \{Classes \cup\ \langle\ C_{derived},\ typeStack,\ \emptyset,\ \emptyset \ \rangle\},\ 
+& gEnv \oplus \{Classes \cup\ \{\langle\ C_{derived},\ typeStack,\ \emptyset,\ \emptyset \ \rangle\}\},\ 
 \\
 &auxEnv\oplus \{controlClass \rightarrow C_{derived}\}\rangle
 \\
@@ -24,13 +23,13 @@ where\ &typestack\ = \ findAncestors(C_{base}).push(C_{base})
 (decl-2)\ &\langle\ \langle\ e_0,\ T\ x;,\ lEnv,\ running\ \rangle,\ gEnv,\ auxEnv \ \rangle
 \\
 \longrightarrow\ & \langle\ \langle\ e_0,\ \epsilon,\ lEnv,\ running\ \rangle,\ gEnv[Classes]\oplus\ \\
-& \{\ \langle\ auxEnv[controlClass],\ typeStack,\ attrs \rightarrow attrs \cup \langle\ x,\ T\ \rangle ,\ \emptyset\},\  auxEnv\ \rangle
+& \{\ \langle\ auxEnv[controlClass],\ typeStack,\ attrs \rightarrow attrs \cup \{\langle\ x,\ T\ \rangle\} ,\ \emptyset\},\  auxEnv\ \rangle
 \\
 (decl-3)\ & \langle\ \langle\ e_0,\  T\ m(params)\{s\},\ lEnv,\ running \ \rangle,\ gEnv,\ auxEnv\ \rangle
 \\
-\longrightarrow\ & \langle\ \langle\ e_0,\ \epsilon,\ lEnv,\ running\ \rangle,\ gEnv[Classes] \oplus \ \{\ \langle\ auxEnv[controlClass],\ 
+\longrightarrow\ & \langle\ \langle\ e_0,\ \epsilon,\ lEnv,\ running\ \rangle,\ gEnv[Classes] \oplus \ \{ \langle\ auxEnv[controlClass],\ 
 \\
-& typeStack,\ attrs,\ meths \rightarrow meths \cup \langle\ m,\ T,\ params,\ s \rangle\ \rangle\},\  auxEnv\ \rangle 
+& typeStack,\ attrs,\ meths \rightarrow meths \cup \{\langle\ m,\ T,\ params,\ s \rangle \}\ \rangle\},\  auxEnv\ \rangle 
 \\
 (decl-end)\ &\langle\ \langle\ e_0,\ end;,\ lEnv,\ running\ \rangle,\ gEnv,\ auxEnv \rangle
 \\
@@ -45,11 +44,11 @@ where\ &typestack\ = \ findAncestors(C_{base}).push(C_{base})
 \\
 \longrightarrow\ &\langle\ \langle \ e_{id},\ \hat{loc},\ lEnv,\ running \ \rangle,\ 
 \\
-& gEnv \oplus\ \{Objects\ \cup\ \langle\ \hat{loc},\ C,\ \emptyset,\ st_{objattr}[C].init(),\ -1,\ null \ \rangle\},\ auxEnv\ \rangle
+& gEnv \oplus\ \{Objects\ \cup\ \{\langle\ \hat{loc},\ C,\ \emptyset,\ st_{objattr}[C].init(),\ -1,\ null \ \rangle\}\},\ auxEnv\ \rangle
 \\
 (var-1)& \langle\ \langle \ e_{id},\ T\ x;,\ lEnv,\ running\ \rangle,\ gEnv,\ auxEnv\ \rangle
 \\
-\longrightarrow\ &\langle\ \langle \ e_{id},\ \epsilon,\ lEnv\ \oplus\ \{env \cup \ \langle\ x,\ T,\ null \ \rangle\},\ running \ \rangle,\ gEnv,\ auxEnv\ \rangle
+\longrightarrow\ &\langle\ \langle \ e_{id},\ \epsilon,\ lEnv\ \oplus\ \{env \cup \ \{\langle\ x,\ T,\ null \ \rangle\}\},\ running \ \rangle,\ gEnv,\ auxEnv\ \rangle
 &
 \end{flalign*}
 \end{small}
@@ -144,7 +143,9 @@ where\ &typestack\ = \ findAncestors(C_{base}).push(C_{base})
 \begin{flalign*}
 (func-1)\ & \langle\ \langle \ e_{id},\ o.m(params,vals);,\ lEnv,\ running\ \rangle,\ gEnv,\ auxEnv\ \rangle
 \\
-\longrightarrow\ &\langle\ \langle \ e_{id},\ cmd(m),\ lEnv \oplus \{st_{func}.push(env),\ st_{obj}.push(o),\ mat(params, vals)\},\ 
+\longrightarrow\ &\langle\ \langle \ e_{id},\ cmd(m),\ lEnv \oplus \{
+\\
+&st_{func}\rightarrow st_{func}.push(env),\ st_{obj}\rightarrow st_{obj}.push(o),\ env\rightarrow mat(params, vals)\},\ 
 \\
 &running \ \rangle,\ gEnv,\ auxEnv\ \rangle
 \\
@@ -152,26 +153,26 @@ where\ &typestack\ = \ findAncestors(C_{base}).push(C_{base})
 \\
 \longrightarrow\ &\langle\ \langle \ e_{id},\ o.m(params,vals);,\ lEnv,\ waiting \ \rangle,\  
 \\
-& gEnv\oplus \{\ Objects\oplus \{\langle\ loc,\ type,\ o,\ st,\ locked,\ requests\cup\ e_{id} \ \rangle \ \}\ \},\ auxEnv \ \rangle
+& gEnv[Objects]\oplus \{\langle\ loc,\ type,\ o,\ st,\ locked,\ requests\cup \{e_{id}\} \ \rangle \},\ auxEnv \ \rangle
 \\
 (func-3)\ & \langle\ \langle \ e_{id},\ o.m_{sync}(params,vals);,\ lEnv,\ running\ \rangle,\ gEnv,\ auxEnv \rangle
 \\
-\longrightarrow\ &\langle\ \langle \ e_{id},\ cmd(m),\ 
+\longrightarrow\ &\langle\ \langle \ e_{id},\ cmd(m),\ lEnv\oplus \{st_{func}\rightarrow st_{func}.push(env),\
 \\
-&lEnv\oplus \{st_{func}.push(env),\ st_{obj}.push(o),\ mat(params, vals)\}, running \ \rangle,\ 
+& st_{obj}\rightarrow st_{obj}.push(o),\ env\rightarrow mat(params, vals)\}, running \ \rangle,\ 
 \\
-&gEnv \oplus \{Objects \oplus \{\ \langle\ loc,\ type,\ o,\ st_{objattr},\ \emptyset \ \rightarrow \ e_{id},\ \emptyset \ \rangle \ \} \},\ auxEnv \ \rangle
+&gEnv[Objects] \oplus \{ \langle\ loc,\ type,\ o,\ st_{objattr},\ \emptyset \ \rightarrow \ e_{id},\ \emptyset \ \rangle \},\ auxEnv \ \rangle
 \\
 (func-4)\ & \langle\ \langle \ e_{id},\ o.m_{sync}(params,vals);,\ lEnv,\ running\ \rangle,\ gEnv,\ auxEnv\ \rangle
 \\
 \longrightarrow\ &\langle\ \langle \ e_{id},\ o.m_{sync}(params,vals);,\ lEnv,\ waiting \ \rangle,\ 
 \\
-&gEnv \oplus \{Objects\oplus \{\ \langle\ loc,\ type,\ o,\ st,\ locked,\ requests\cup\ e_{id} \ \rangle \ \}\},\ auxEnv \ \rangle
+&gEnv [Objects]\oplus \{\ \langle\ loc,\ type,\ o,\ st,\ locked,\ requests\cup \{e_{id}\} \ \rangle \},\ auxEnv \ \rangle
 \\
 (func-5)\ & \langle\ \langle \ e_{id},\ return\ e;,\ lEnv,\ running\ \rangle,\ gEnv,\ auxEnv\ \rangle
 \\
 \longrightarrow\ &\langle\ \langle \ e_{id},\ e,\ lEnv\oplus \{st_{func}.pop(),\ st_{obj}.pop(),\ st_{func}.top()\},\ running \ \rangle,\\
-&gEnv \oplus \{Objects\ \oplus\ \{\ \langle\ loc,\ type,\ o,\ st,\ \emptyset,\ requests\ \rangle \ \}\},\ auxEnv \ \rangle
+&gEnv[Objects] \oplus\ \{ \langle\ loc,\ type,\ o,\ st,\ lock\rightarrow \emptyset,\ requests\ \rangle \},\ auxEnv \ \rangle
 &
 \end{flalign*}
 \end{small}
@@ -231,15 +232,15 @@ where\ &typestack\ = \ findAncestors(C_{base}).push(C_{base})
 \\
 (guar-1)\ & fire(guard)
 \\
-&\overline{\langle\ \langle \ e_{id},\ @\langle guard \rangle,\ \langle pgm \rangle,\ \langle params,vals \rangle,\ \langle \emptyset,\ \emptyset,\ \emptyset \rangle,\ pending\ \rangle,\ gEnv,\ auxEnv\ \rangle}
+&\overline{\langle\ \langle \ e_{id},\ @\langle guard \rangle,\ \langle pgm \rangle,\ \langle ps,vs \rangle,\ \langle \emptyset,\ \emptyset,\ \emptyset \rangle,\ pending\ \rangle,\ gEnv,\ auxEnv\ \rangle}
 \\
-\longrightarrow\ &\langle\ \langle \ e_{id},\ pgm,\ lEnv\oplus\{ env \rightarrow mat(params,vals)\},\ running \ \rangle,\ gEnv,\ auxEnv\ \rangle
+\longrightarrow\ &\langle\ \langle \ e_{id},\ pgm,\ lEnv\oplus\{ env \rightarrow mat(ps,vs)\},\ running \ \rangle,\ gEnv,\ auxEnv\ \rangle
 \\
 (sch-1)\ & \langle\ \langle \ e_{id},\ schedule(nextEvent),\ lEnv,\ running\ \rangle,\ gEnv,\ \ auxEnv\ \rangle
 \\
 \longrightarrow\ &\langle\ \langle \ e_{id},\ \epsilon,\ lEnv,\ terminated \ \rangle
 \\
-&\cup\ \langle\ nextEvent,\ @\langle\ guard\ \rangle \langle\ pgm\ \rangle  \langle params,vals \rangle,\ lEnv',\ pending \ \rangle,\ gEnv,\ auxEnv\ \rangle
+&\cup\ \langle\ nextEvent,\ @\langle guard \rangle \langle pgm \rangle  \langle ps,vs \rangle,\ lEnv',\ pending \ \rangle,\ gEnv,\ auxEnv\ \rangle
 \\
 (sch-2)\ & \langle\ \langle \ e_{id},\ cancel(event),\ lEnv,\ running\ \rangle,\ gEnv,\ auxEnv\ \rangle
 \\
@@ -259,35 +260,39 @@ where\ &typestack\ = \ findAncestors(C_{base}).push(C_{base})
 \\
 (para-2)\ & \langle\ \langle \ e_{id1},\ P,\ lEnv_1,\ running\ \rangle,\ gEnv,\ \langle \ \emptyset,\ e_{id1} \rangle\ \rangle
 \\
-\longrightarrow\ &\langle\ \langle \ e_{id1},\ P',\ lEnv_1',\ running \ \rangle,\ gEnv,\ \langle \emptyset,\ e_{id1}\ \rangle \rangle
+\longrightarrow\ &\langle\ \langle \ e_{id1},\ P',\ lEnv_1',\ running \ \rangle,\ gEnv,\ \langle \emptyset,\ e_{id1} \rangle\ \rangle
 \\
-& \overline{\langle\ \langle \ e_{id1},\ P,\ lEnv_1,\ running\ \rangle || \langle \ e_{id2},\ Q,\ lEnv_2,\ running\ \rangle ,\ gEnv,\ \langle \emptyset,\ e_{id1}\ \rangle \rangle}
+& \overline{\langle\ \langle \ e_{id1},\ P,\ lEnv_1,\ running\ \rangle || \langle \ e_{id2},\ Q,\ lEnv_2,\ running\ \rangle ,\ gEnv,\ \langle \emptyset,\ e_{id1} \rangle\ \rangle}
 \\
-\longrightarrow &\langle\ \langle \ e_{id1},\ P',\ lEnv_1',\ running\ \rangle || \langle \ e_{id2},\ Q,\ lEnv_2,\ running\ \rangle ,\ gEnv,\ \langle \emptyset,\ e_{id1}\ \rangle \rangle
+\longrightarrow &\langle\ \langle \ e_{id1},\ P',\ lEnv_1',\ running\ \rangle || \langle \ e_{id2},\ Q,\ lEnv_2,\ running\ \rangle ,\ gEnv,\ \langle \emptyset,\ e_{id1} \rangle\ \rangle
 \\
 (para-3)\ & \langle\ \langle \ e_{id},\ >,\ lEnv,\ running\ \rangle,\ gEnv,\ auxEnv\ \rangle
 \\
 \longrightarrow\ &\langle\ \langle \ e_{id},\ \epsilon,\ lEnv,\ running \ \rangle,\ gEnv,\ auxEnv \oplus \{atomicity \rightarrow \emptyset\}\ \rangle
 \\
-(para-4)\ & \langle\ \langle \ e_{id1},\ P,\ lEnv_1,\ running\ \rangle,\ gEnv,\ \langle \emptyset,\ \emptyset\ \rangle \rangle
+(para-4)\ & \langle\ \langle \ e_{id1},\ P,\ lEnv_1,\ running\ \rangle,\ gEnv,\ \langle \emptyset,\ \emptyset \rangle\ \rangle
 \\
-\longrightarrow\ &\langle\ \langle \ e_{id1},\ P',\ lEnv_1',\ running \ \rangle,\ gEnv,\ \langle \emptyset,\ \emptyset \ \rangle \rangle
+\longrightarrow\ &\langle\ \langle \ e_{id1},\ P',\ lEnv_1',\ running \ \rangle,\ gEnv,\ \langle \emptyset,\ \emptyset \rangle\ \rangle
 \\
-& \overline{\langle\ \langle \ e_{id1},\ P,\ lEnv_1,\ running\ \rangle || \langle \ e_{id2},\ Q,\ lEnv_2,\ running\ \rangle ,\ gEnv,\ \langle \emptyset,\ \emptyset\ \rangle \rangle}
+& \overline{\langle\ \langle \ e_{id1},\ P,\ lEnv_1,\ running\ \rangle || \langle \ e_{id2},\ Q,\ lEnv_2,\ running\ \rangle ,\ gEnv,\ \langle \emptyset,\ \emptyset \rangle\ \rangle}
 \\
-\longrightarrow &\langle\ \langle \ e_{id1},\ P',\ lEnv_1',\ running\ \rangle || \langle \ e_{id2},\ Q,\ lEnv_2,\ running\ \rangle ,\ gEnv,\ \langle\emptyset,\ \emptyset\ \rangle \rangle
+\longrightarrow &\langle\ \langle \ e_{id1},\ P',\ lEnv_1',\ running\ \rangle || \langle \ e_{id2},\ Q,\ lEnv_2,\ running\ \rangle ,\ gEnv,\ \langle\emptyset,\ \emptyset \rangle\ \rangle
 \\
-(para-5)\ & \langle\ \langle \ e_{id1},\ P,\ lEnv_1,\ running\ \rangle,\ gEnv,\ \langle\emptyset,\ \emptyset\ \rangle \rangle
+(para-5)\ & \langle\ \langle \ e_{id1},\ P,\ lEnv_1,\ running\ \rangle,\ gEnv,\ \langle\emptyset,\ \emptyset \rangle\ \rangle
 \\
-\longrightarrow\ &\langle\ \langle \ e_{id1},\ P',\ lEnv_1',\ running \ \rangle,\ gEnv,\ \langle \emptyset,\ \emptyset \ \rangle\rangle
+\longrightarrow\ &\langle\ \langle \ e_{id1},\ P',\ lEnv_1',\ running \ \rangle,\ gEnv,\ \langle \emptyset,\ \emptyset  \rangle\ \rangle
 \\
-& \overline{\langle\ \langle \ e_{id1},\ P,\ lEnv_1,\ running\ \rangle || \langle \ e_{id2},\ \delta t,\ lEnv_2,\ running\ \rangle ,\ gEnv,\ \langle \emptyset,\ \emptyset\ \rangle\rangle }
+& \overline{\langle\ \langle \ e_{id1},\ P,\ lEnv_1,\ running\ \rangle || \langle \ e_{id2},\ \delta t,\ lEnv_2,\ running\ \rangle ,\ gEnv,\ \langle \emptyset,\ \emptyset \rangle\ \rangle }
 \\
-\longrightarrow &\langle\ \langle \ e_{id1},\ P',\ lEnv_1',\ running\ \rangle || \langle \ e_{id2},\ \delta t,\ lEnv_2,\ running\ \rangle ,\ gEnv,\ \langle \emptyset,\ \emptyset\ \rangle \rangle
+\longrightarrow &\langle\ \langle \ e_{id1},\ P',\ lEnv_1',\ running\ \rangle || \langle \ e_{id2},\ \delta t,\ lEnv_2,\ running\ \rangle ,\ gEnv,\ \langle \emptyset,\ \emptyset \rangle\ \rangle
 \\
-(para-6)\ & \langle\ \langle \ e_{id1},\ \delta t_1,\ lEnv_1,\ running\ \rangle || \langle\ \langle \ e_{id2},\ \delta t_2,\ lEnv_2,\ running\ \rangle,\ gEnv,\ \langle\emptyset,\ atomicity\ \rangle \rangle
+(para-6)\ & \langle\ \langle \ e_{id1},\ \delta t_1,\ lEnv_1,\ running\ \rangle ||
 \\
-\longrightarrow\ &\langle\ \langle \ e_{id1},\ \delta t_1-1,\ lEnv_1,\ running\ \rangle || \langle\ \langle \ e_{id2},\ \delta t_2-1,\lEnv_2,\ running\ \rangle,\ gEnv,\ \langle \emptyset,\ atomicity\ \rangle \rangle
+&\langle\ \langle \ e_{id2},\ \delta t_2,\ lEnv_2,\ running\ \rangle,\ gEnv,\ \langle\emptyset,\ atomicity \rangle\ \rangle
+\\
+\longrightarrow\ &\langle\ \langle \ e_{id1},\ \delta (t_1-1),\ lEnv_1,\ running\ \rangle ||
+\\
+&\langle\ \langle \ e_{id2},\ \delta (t_2-1),\ lEnv_2,\ running\ \rangle,\ gEnv,\ \langle \emptyset,\ atomicity \rangle\ \rangle
 &
 \end{flalign*}
 \end{small}
